@@ -59,27 +59,29 @@ t_file				*find_node(t_file **list, int fd)
 	return (temp);
 }
 
-char				*ft_dup_pro(char *str, char *s1)
+char				*out_manage(char **sours)
 {
-	int		len;
-	int		copycount;
-	char	*rez;
+	char			*res;
+	char			*temp;
+	size_t			i;
 
-	len = 0;
-	copycount = 0;
-	while (s1[len] != '\0')
-		len++;
-	rez = (char*)malloc(len + 1);
-	if (rez == (char*)0)
-		return ((char*)0);
-	while (s1[copycount])
+	i = 0;
+	if (!(temp = ft_strdup(*sours)))
+		return (0);
+	while (temp[i] != '\n' && temp[i])
+		i++;
+	if (!(res = ft_strsub(*sours, 0, i)))
+		return (0);
+	ft_strdel(sours);
+	if (ft_strchr(temp, '\n'))
 	{
-		rez[copycount] = s1[copycount];
-		copycount++;
+		if (!(*sours = ft_strdup(temp + i + 1)))
+			return (0);
 	}
-	rez[copycount] = s1[copycount];
-	ft_strdel(&str);
-	return (rez);
+	else if (!(*sours = ft_strnew(0)))
+		return (0);
+	ft_strdel(&temp);
+	return (res);
 }
 
 int					get_next_line(const int fd, char **line)
@@ -103,8 +105,7 @@ int					get_next_line(const int fd, char **line)
 	}
 	if (bytes < BUFF_SIZE && !(ft_strlen(tmp->s)))
 		return (0);
-	if (!(*line = ft_strsub((tmp->s), 0, ft_strchr((tmp->s), '\n') - (tmp->s))))
+	if (!(*line = out_manage(&tmp->s)))
 		return (-1);
-	tmp->s = ft_dup_pro(tmp->s, ft_strchr((tmp->s), '\n') + 1);
 	return (1);
 }
