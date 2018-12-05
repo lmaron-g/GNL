@@ -10,12 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "/Users/lmaron-g/libft/libft.h"
-#include "/home/marshtupa/libft/libft.h"
+#include "libft.h"
 #include "get_next_line.h"
-#include <stdio.h>
 
-int				ft_strjoint(char **dest, char *src)
+int					ft_cat_pro(char **dest, char *src)
 {
 	char		*ret;
 	char		*fresh;
@@ -33,48 +31,80 @@ int				ft_strjoint(char **dest, char *src)
 	}
 	else
 		return (0);
-	free(*dest);
+	ft_strdel(dest);
 	*dest = ret;
 	return (1);
 }
 
-int				get_next_line(const int fd, char **line)
+t_file				*find_node(t_file **list, int fd)
 {
-	int			bytes;
-	static char	*fresh;
-	char		buf[BUFF_SIZE + 1];
+	t_file			*temp;
 
-	bytes = 0;
-	if (!fresh)
-		fresh = ft_strnew(0);
+	if (!list)
+		return (0);
+	temp = *list;
+	while (temp)
+	{
+		if (temp->fd == fd)
+			return (temp);
+		temp = temp->next;
+	}
+	if (!(temp = (t_file*)malloc(sizeof(t_file))))
+		return (0);
+	if (!(temp->s = ft_strnew(0)))
+		return (0);
+	temp->fd = fd;
+	temp->next = *list;
+	*list = temp;
+	return (temp);
+}
+
+char				*ft_dup_pro(char *str, char *s1)
+{
+	int		len;
+	int		copycount;
+	char	*rez;
+
+	len = 0;
+	copycount = 0;
+	while (s1[len] != '\0')
+		len++;
+	rez = (char*)malloc(len + 1);
+	if (rez == (char*)0)
+		return ((char*)0);
+	while (s1[copycount])
+	{
+		rez[copycount] = s1[copycount];
+		copycount++;
+	}
+	rez[copycount] = s1[copycount];
+	ft_strdel(&str);
+	return (rez);
+}
+
+int					get_next_line(const int fd, char **line)
+{
+	int				bytes;
+	static t_file	*list;
+	t_file			*tmp;
+	char			buf[BUFF_SIZE + 1];
+
+	if (fd < 0 || !line || read(fd, buf, 0) < 0)
+		return (-1);
+	if (!(tmp = find_node(&list, fd)))
+		return (-1);
 	while ((bytes = read(fd, buf, BUFF_SIZE)) > 0)
 	{
 		buf[bytes] = 0;
-		if (!(ft_strjoint(&fresh, buf)))
+		if (!(ft_cat_pro(&(tmp->s), buf)))
 			return (-1);
 		if (ft_strchr(buf, '\n'))
-			break;
+			break ;
 	}
-	if (bytes < BUFF_SIZE && !(ft_strlen(fresh)))
+	if (bytes < BUFF_SIZE && !(ft_strlen(tmp->s)))
 		return (0);
-	*line = ft_strsub(fresh, 0, (ft_strchr(fresh, '\n') - fresh));
-	fresh = ft_strdup(ft_strchr(fresh, '\n') + 1);
+	if (!(*line = ft_strsub((tmp->s), 0, ft_strchr((tmp->s), '\n') - (tmp->s))))
+		return (-1);
+	tmp->s = ft_dup_pro(tmp->s, ft_strchr((tmp->s), '\n') + 1);
 	return (1);
-}
-
-int main()
-{
-	char	*output1;
-	char	file1[] = "get_next_line.h";
-	int		fd1 = open(file1, O_RDONLY);
-	int		n = 4;
-
-	while (n)
-	{
-		get_next_line(fd1, &output1);
-		printf("%s\n", output1);
-		n--;
-	}
-	close(fd1);
-	return 0;
 }
