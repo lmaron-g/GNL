@@ -24,7 +24,7 @@
 typedef struct		s_file
 {
 	int				fd;
-	char			*s;
+	char			*thread;
 	struct s_file	*next;
 }					t_file;
 
