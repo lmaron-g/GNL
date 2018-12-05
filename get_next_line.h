@@ -13,7 +13,7 @@
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
-#define BUFF_SIZE 1213
+#define BUFF_SIZE 100000
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -23,9 +23,9 @@
 
 // typedef struct		s_list
 // {
-// 	int				fd;
-// 	void			*data;
-// 	struct s_list	*next;
+// 	int					fd;
+// 	void				*data;
+// 	struct s_list		*next;
 // }					t_list;
 
 int	get_next_line(const int fd, char **line);

@@ -10,30 +10,31 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "/Users/lmaron-g/libft/libft.h"
+//#include "/Users/lmaron-g/libft/libft.h"
+#include "/home/marshtupa/libft/libft.h"
 #include "get_next_line.h"
 #include <stdio.h>
 
-int				ft_strjoint(char **s11, char *s2)
+int				ft_strjoint(char **dest, char *src)
 {
 	char		*ret;
 	char		*fresh;
-	char		*s1;
+	char		*dst;
 
 	ret = 0;
-	s1 = *s11;
-	if (s1 && s2 && (fresh = ft_strnew(ft_strlen(s1) + ft_strlen(s2))))
+	dst = *dest;
+	if (dst && src && (fresh = ft_strnew(ft_strlen(dst) + ft_strlen(src))))
 	{
 		ret = fresh;
-		while (*s1)
-			*fresh++ = (char)*s1++;
-		while (*s2 && *s2 != '\n')
-			*fresh++ = (char)*s2++;
+		while (*dst)
+			*fresh++ = (char)*dst++;
+		while (*src)
+			*fresh++ = (char)*src++;
 	}
 	else
 		return (0);
-	free(*s11);
-	*s11 = ret;
+	free(*dest);
+	*dest = ret;
 	return (1);
 }
 
@@ -46,33 +47,25 @@ int				get_next_line(const int fd, char **line)
 	bytes = 0;
 	if (!fresh)
 		fresh = ft_strnew(0);
-	if (!(ft_strchr(fresh, '\n')))
+	while ((bytes = read(fd, buf, BUFF_SIZE)) > 0)
 	{
-		while ((bytes = read(fd, buf, BUFF_SIZE)))
-		{
-			buf[bytes] = 0;
-			if (!(ft_strjoint(&fresh, buf)))
-				return (-1);
-			if (ft_strchr(buf, '\n'))
-				break;
-		}
-		if (bytes < BUFF_SIZE && !ft_strlen(fresh))
-			return (0);
-		*line = fresh;
-		fresh = ft_strdup(ft_strchr(buf, '\n') + 1);
-	} else
-		{
-			free(*line);
-			*line = ft_strsub(fresh, 0, ft_strchr(fresh, '\n') - fresh);
-			fresh = ft_strdup(ft_strchr(fresh, '\n') + 1);
-		}
+		buf[bytes] = 0;
+		if (!(ft_strjoint(&fresh, buf)))
+			return (-1);
+		if (ft_strchr(buf, '\n'))
+			break;
+	}
+	if (bytes < BUFF_SIZE && !(ft_strlen(fresh)))
+		return (0);
+	*line = ft_strsub(fresh, 0, (ft_strchr(fresh, '\n') - fresh));
+	fresh = ft_strdup(ft_strchr(fresh, '\n') + 1);
 	return (1);
 }
 
 int main()
 {
 	char	*output1;
-	char	file1[] = "text1";
+	char	file1[] = "get_next_line.h";
 	int		fd1 = open(file1, O_RDONLY);
 	int		n = 4;
 
